@@ -5,7 +5,7 @@
 # This script updates default MySQL/MariaDB on CentOS to MariaDB 10.5
 # Requirements : bash 3.x, GNU coreutils
 # Version      : 1.0
-#########
+################
 
 LOG_FILE=plesk_mariadbupdate.log
 ERROR_LOG_FILE=plesk_updatemariadb_error.log
@@ -25,10 +25,11 @@ fi
 echo "stopping MariaDB service"
 systemctl stop mariadb
 
-
+#creating a backup of MySQL
 echo "creating backup of mysql directory"
 cp -v -a /var/lib/mysql/ /var/lib/mysql_backup 2> /dev/null
 
+#checking if mysq-server package exists already and remove it if yes
 echo "removing mysql-server package in case it exists"
 rpm -e --nodeps "`rpm -q --whatprovides mariadb-server`"
 
@@ -47,6 +48,7 @@ yum install MariaDB-client MariaDB-server MariaDB-compat MariaDB-shared -y
 
 systemctl restart mariadb
 
+#making upgrade of tables, in some cases it is still needed when performing update from old version e.g. 5.5 
 MYSQL_PWD=`cat /etc/psa/.psa.shadow` mysql_upgrade -uadmin
 
 systemctl restart mariadb
